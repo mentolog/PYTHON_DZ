@@ -1,3 +1,3 @@
-MyAge = "48"
-MyAge = "51"
-print (MyAge)
+my_age = "48"
+my_age = "51"
+print (my_age)

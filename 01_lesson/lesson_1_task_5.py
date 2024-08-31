@@ -1,7 +1,15 @@
-def print_number(num):
-    print(num)
+def pr_num(num):
+    print(num, end="")
 
-number = "88005553535"
 
-for digit in number:
-    print_number(digit)
+pr_num(8)
+pr_num(8)
+pr_num(0)
+pr_num(0)
+pr_num(5)
+pr_num(5)
+pr_num(5)
+pr_num(3)
+pr_num(5)
+pr_num(3)
+pr_num(5)
