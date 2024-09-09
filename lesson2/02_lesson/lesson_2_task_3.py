@@ -1,7 +1,7 @@
 import math
 
 def square(side):
-    return math.ceil(side) * math.ceil(side)
+    return side * side
 
 attempts = 0
 max_attempts = 3
@@ -12,6 +12,11 @@ while attempts < max_attempts:
         
         # Проверка на допустимый диапазон
         if 1 <= side <= 100:
+            # Округление в большую сторону, если число нецелое
+            if not side.is_integer():
+                side = math.ceil(side)
+                print(f"При вводе нецелого числа, сторона квадрата округляется в большую сторону до следующего целого числа: {side} см.")
+            
             area = square(side)
             print(f"Площадь квадрата равна {area} сантиметров.")
             break
