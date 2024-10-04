@@ -1,59 +1,100 @@
+import pytest
 from StringUtils import StringUtils  # Импортируем класс из другого файла
 
-# Тестирование класса StringUtils
-class StringUtilsTester:
-    def __init__(self):
-        self.utils = StringUtils()
 
-    def run_tests(self):
-        # Позитивные тесты
-        print("Позитивные тесты:")
-
-        # 1. Тест capitalize
-        assert self.utils.capitilize("skypro") == "Skypro", "Ошибка в capitilize()"
-        print("1. capitilize() - Успешно")
-
-        # 2. Тест trim
-        assert self.utils.trim("   skypro") == "skypro", "Ошибка в trim()"
-        print("2. trim() - Успешно")
-
-        # 3. Тест to_list
-        assert self.utils.to_list("a,b,c,d") == ["a", "b", "c", "d"], "Ошибка в to_list()"
-        print("3. to_list() - Успешно")
-
-        # 4. Тест contains
-        assert self.utils.contains("SkyPro", "S"), "Ошибка в contains()"
-        print("4. contains() - Успешно")
-
-        # 5. Тест delete_symbol
-        assert self.utils.delete_symbol("SkyPro", "k") == "SyPro", "Ошибка в delete_symbol()"
-        print("5. delete_symbol() - Успешно")
-
-        # Негативные тесты
-        print("\nНегативные тесты:")
-
-        # 1. Тест на пустую строку для метода capitilize
-        assert self.utils.capitilize("") == "", "Ошибка: capitilize() не обработал пустую строку"
-        print("1. capitilize() с пустой строкой - Успешно")
-
-        # 2. Тест на trim с пустой строкой
-        assert self.utils.trim("    ") == "", "Ошибка: trim() не обработал строку с пробелами"
-        print("2. trim() с пустой строкой - Успешно")
-
-        # 3. Тест to_list с пустой строкой
-        assert self.utils.to_list("") == [], "Ошибка: to_list() не обработал пустую строку"
-        print("3. to_list() с пустой строкой - Успешно")
-
-        # 4. Тест contains с отсутствующим символом
-        assert not self.utils.contains("SkyPro", "Z"), "Ошибка: contains() нашел несуществующий символ"
-        print("4. contains() с несуществующим символом - Успешно")
-
-        # 5. Тест delete_symbol с отсутствующим символом
-        assert self.utils.delete_symbol("SkyPro", "Z") == "SkyPro", "Ошибка: delete_symbol() удалил несуществующий символ"
-        print("5. delete_symbol() с несуществующим символом - Успешно")
+@pytest.fixture
+def utils():
+    return StringUtils()
 
 
-# Запуск тестов
+@pytest.mark.parametrize("input_str, expected", [
+    ("skypro", "Skypro"),  # Позитивный тест
+    ("", ""),  # Негативный тест: пустая строка
+    (" skypro", " skypro"),  # Негативный тест: пробел в начале
+    ("TEST", "Test"),  # Позитивный тест: все заглавные
+])
+def test_capitilize(utils, input_str, expected):
+    assert utils.capitilize(input_str) == expected
+
+
+@pytest.mark.parametrize("input_str, expected", [
+    ("   skypro", "skypro"),  # Позитивный тест
+    ("", ""),  # Негативный тест: пустая строка
+    ("    ", ""),  # Негативный тест: строка из пробелов
+    ("test", "test"),  # Позитивный тест: непустая строка
+])
+def test_trim(utils, input_str, expected):
+    assert utils.trim(input_str) == expected
+
+
+@pytest.mark.parametrize("input_str, delimiter, expected", [
+    ("a,b,c,d", ",", ["a", "b", "c", "d"]),  # Позитивный тест
+    ("1:2:3", ":", ["1", "2", "3"]),  # Позитивный тест: другой разделитель
+    ("", ",", []),  # Негативный тест: пустая строка
+    ("a,b,c,", ",", ["a", "b", "c", ""]),  # Негативный тест: лишний разделитель
+])
+def test_to_list(utils, input_str, delimiter, expected):
+    assert utils.to_list(input_str, delimiter) == expected
+
+
+@pytest.mark.parametrize("input_str, symbol, expected", [
+    ("SkyPro", "S", True),  # Позитивный тест
+    ("SkyPro", "Z", False),  # Негативный тест: символ не найден
+    ("", "S", False),  # Негативный тест: пустая строка
+    ("123456", "2", True),  # Позитивный тест: число как строка
+])
+def test_contains(utils, input_str, symbol, expected):
+    assert utils.contains(input_str, symbol) == expected
+
+
+@pytest.mark.parametrize("input_str, symbol, expected", [
+    ("SkyPro", "k", "SyPro"),  # Позитивный тест
+    ("SkyPro", "Z", "SkyPro"),  # Негативный тест: символ не найден
+    ("", "S", ""),  # Негативный тест: пустая строка
+    ("123123", "1", "23123"),  # Позитивный тест: число как строка
+])
+def test_delete_symbol(utils, input_str, symbol, expected):
+    assert utils.delete_symbol(input_str, symbol) == expected
+
+
+@pytest.mark.parametrize("input_str, symbol, expected", [
+    ("SkyPro", "S", True),  # Позитивный тест
+    ("SkyPro", "P", False),  # Негативный тест: символ не в начале
+    ("", "S", False),  # Негативный тест: пустая строка
+    ("123", "1", True),  # Позитивный тест: строка с числами
+])
+def test_starts_with(utils, input_str, symbol, expected):
+    assert utils.starts_with(input_str, symbol) == expected
+
+
+@pytest.mark.parametrize("input_str, symbol, expected", [
+    ("SkyPro", "o", True),  # Позитивный тест
+    ("SkyPro", "y", False),  # Негативный тест: символ не в конце
+    ("", "o", False),  # Негативный тест: пустая строка
+    ("123", "3", True),  # Позитивный тест: строка с числами
+])
+def test_end_with(utils, input_str, symbol, expected):
+    assert utils.end_with(input_str, symbol) == expected
+
+
+@pytest.mark.parametrize("input_str, expected", [
+    ("", True),  # Негативный тест: пустая строка
+    (" ", True),  # Негативный тест: строка из пробела
+    ("skypro", False),  # Позитивный тест
+])
+def test_is_empty(utils, input_str, expected):
+    assert utils.is_empty(input_str) == expected
+
+
+@pytest.mark.parametrize("lst, joiner, expected", [
+    ([1, 2, 3], ", ", "1, 2, 3"),  # Позитивный тест
+    ([], ", ", ""),  # Негативный тест: пустой список
+    (["a", "b", "c"], "-", "a-b-c"),  # Позитивный тест: другой разделитель
+    ([1000], ", ", "1000"),  # Позитивный тест: один элемент
+])
+def test_list_to_string(utils, lst, joiner, expected):
+    assert utils.list_to_string(lst, joiner) == expected
+
+
 if __name__ == "__main__":
-    tester = StringUtilsTester()
-    tester.run_tests()
+    pytest.main()
