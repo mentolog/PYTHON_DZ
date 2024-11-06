@@ -1,5 +1,3 @@
-#db_connection.py
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -15,5 +13,4 @@ def get_session():
     """Создает и возвращает новую сессию для работы с базой данных."""
     engine = get_engine()
     Session = sessionmaker(bind=engine)
-    session = Session()
-    return session
+    return Session()
