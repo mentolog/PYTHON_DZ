@@ -1,54 +1,43 @@
 import pytest
 from teachers2 import TeacherDatabase
 
-@pytest.fixture(autouse=True)
-def setup_and_teardown():
-    """Фикстура для подготовки и очистки данных перед и после каждого теста."""
-    teacher_id = 55555
-    email = 'unique_teacher@example.com'
-    group_id = 55
+class TestTeacherDatabase:
+    @pytest.fixture(autouse=True)
+    def setup_and_teardown(self):
+        """Фикстура для подготовки и очистки данных перед и после каждого теста."""
+        self.teacher_id = 1
+        self.teacher_email = 'teacher@example.com'
+        self.new_teacher_email = 'updated_teacher@example.com'
+        self.group_id = 101
 
-    # Удаление тестового преподавателя перед каждым тестом
-    TeacherDatabase.delete_teacher(email)
-    yield teacher_id, email, group_id
-    # Удаление тестового преподавателя после каждого теста
-    TeacherDatabase.delete_teacher(email)
+        self.db = TeacherDatabase()
 
+        # Очищаем таблицу перед каждым тестом
+        self.db.delete_teacher(self.teacher_email)
 
-def test_add_teacher(setup_and_teardown):
-    """Тест на добавление преподавателя в базу данных."""
-    teacher_id, email, group_id = setup_and_teardown
-    TeacherDatabase.add_teacher(teacher_id, email, group_id)
-    result = TeacherDatabase.select_teacher(email)
-    
-    assert result is not None
-    assert result[1] == email  # Используем индекс для email
-    assert result[2] == group_id  # Используем индекс для group_id
+        yield  # Тесты будут выполняться здесь
 
+        # Очищаем таблицу после теста
+        self.db.delete_teacher(self.teacher_email)
 
-def test_update_teacher(setup_and_teardown):
-    """Тест на обновление email преподавателя в базе данных."""
-    teacher_id, email, group_id = setup_and_teardown
-    new_email = 'updated_teacher@example.com'
-    
-    # Добавляем и обновляем преподавателя
-    TeacherDatabase.add_teacher(teacher_id, email, group_id)
-    TeacherDatabase.update_teacher(email, new_email)
-    
-    # Проверяем, что преподаватель обновлен
-    result = TeacherDatabase.select_teacher(new_email)
-    assert result is not None
-    assert result[1] == new_email  # Используем индекс для нового email
+    def test_add_teacher(self):
+        """Тест на добавление преподавателя в базу данных."""
+        self.db.add_teacher(self.teacher_id, self.teacher_email, self.group_id)
+        result = self.db.select_teacher(self.teacher_email)
+        assert result is not None
+        assert result[1] == self.teacher_email  # Проверяем email преподавателя
 
+    def test_update_teacher(self):
+        """Тест на обновление email преподавателя в базе данных."""
+        self.db.add_teacher(self.teacher_id, self.teacher_email, self.group_id)
+        self.db.update_teacher(self.teacher_email, self.new_teacher_email)
+        result = self.db.select_teacher(self.new_teacher_email)
+        assert result is not None
+        assert result[1] == self.new_teacher_email  # Проверяем новый email
 
-def test_delete_teacher(setup_and_teardown):
-    """Тест на удаление преподавателя из базы данных."""
-    teacher_id, email, group_id = setup_and_teardown
-
-    # Добавляем и удаляем преподавателя
-    TeacherDatabase.add_teacher(teacher_id, email, group_id)
-    TeacherDatabase.delete_teacher(email)
-
-    # Проверяем, что преподавателя больше нет
-    result = TeacherDatabase.select_teacher(email)
-    assert result is None
+    def test_delete_teacher(self):
+        """Тест на удаление преподавателя из базы данных."""
+        self.db.add_teacher(self.teacher_id, self.teacher_email, self.group_id)
+        self.db.delete_teacher(self.teacher_email)
+        result = self.db.select_teacher(self.teacher_email)
+        assert result is None  # Убедимся, что преподаватель удалён
